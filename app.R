@@ -13,7 +13,7 @@ thematic::thematic_shiny(font = "auto") # pour les thèmes des graphiques
 ui <- fluidPage(
   theme = bs_theme(
     version = 5,
-    bootswatch = "slate"
+    bootswatch = "minty"
   ),
   
   
