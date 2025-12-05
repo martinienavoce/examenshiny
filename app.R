@@ -55,19 +55,12 @@ ui <- fluidPage(
 )
 
 
-
 server <- function(input, output) {
   
-  observeEvent(
-    c(input$bouton_couleur, input$color, input$price, input$bouton_graph),
-    {
-      message(paste("prix :", input$price, "&", input$color))
-    }
-  )
-  
-
-  output$diamondsplot <- renderPlot({
-    diamonds |>
+  rv <- reactiveValues()
+  observeEvent(input$bouton_graph, {
+    message(paste("prix :", input$price, "&", input$color))
+    rv$graph <- diamonds |>
       filter(color == input$color & price <= input$price)|>
       ggplot(aes(x = carat, y=price)) +
       geom_point(
@@ -76,11 +69,17 @@ server <- function(input, output) {
       labs(
         title = paste("Prix :", input$price, "&", "Color :", input$color)
       )
+    
+    rv$montableau <- diamonds |>
+      filter(color == input$color & price <= input$price)
+  })
+
+  output$diamondsplot <- renderPlot({
+    rv$graph
   })
   
   output$tblo<-renderDT({
-    diamonds |>
-      filter(color == input$color & price <= input$price)
+    rv$montableau
   })
 }
 
