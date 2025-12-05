@@ -44,11 +44,10 @@ ui <- fluidPage(
                    label = "Visualiser le graph")
       
     ),
-    
-    
+ 
     
     mainPanel(
-      plotOutput(outputId ="diamondsplot"),
+      plotlyOutput(outputId ="diamondsplot"),
       DTOutput(outputId ="tblo")
     )
   )
@@ -59,7 +58,6 @@ server <- function(input, output) {
   
   rv <- reactiveValues()
   observeEvent(input$bouton_graph, {
-    message(paste("prix :", input$price, "&", input$color))
     rv$graph <- diamonds |>
       filter(color == input$color & price <= input$price)|>
       ggplot(aes(x = carat, y=price)) +
@@ -67,14 +65,19 @@ server <- function(input, output) {
         color = if (input$bouton_couleur == "Oui") "pink" else "black"
       ) +
       labs(
-        title = paste("Prix :", input$price, "&", "Color :", input$color)
+        title = paste("Prix :", input$price, "& Color :", input$color)
+      )
+    
+    showNotification(
+      paste("prix :", input$price, "& color :", input$color),
+      type = "message"
       )
     
     rv$montableau <- diamonds |>
       filter(color == input$color & price <= input$price)
   })
 
-  output$diamondsplot <- renderPlot({
+  output$diamondsplot <- renderPlotly({
     rv$graph
   })
   
