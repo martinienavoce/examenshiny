@@ -1,5 +1,4 @@
 
-
 library(shiny)
 library(ggplot2)
 library(dplyr)
@@ -18,7 +17,6 @@ ui <- fluidPage(
   
   
   titlePanel("Exploration des Diamants"),
-  
   
   sidebarLayout(
     sidebarPanel(
@@ -69,12 +67,13 @@ server <- function(input, output) {
       )
     
     showNotification(
-      paste("prix :", input$price, "& color :", input$color),
+      paste("Prix :", input$price, "& Color :", input$color),
       type = "message"
       )
     
     rv$montableau <- diamonds |>
-      filter(color == input$color & price <= input$price)
+      filter(color == input$color & price <= input$price) |>
+      select(carat,cut,color,clarity,depth,table,price)
   })
 
   output$diamondsplot <- renderPlotly({
@@ -85,6 +84,5 @@ server <- function(input, output) {
     rv$montableau
   })
 }
-
 
 shinyApp(ui = ui, server = server)
