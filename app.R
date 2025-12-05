@@ -8,38 +8,81 @@ library(bslib)
 library(plotly)
 
 
+thematic::thematic_shiny(font = "auto") # pour les thèmes des graphiques
+
 ui <- fluidPage(
-
-    titlePanel("Old Faithful Geyser Data"),
-
- 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-
-        mainPanel(
-           plotOutput("distPlot")
-        )
+  theme = bs_theme(
+    version = 5,
+    bootswatch = "slate"
+  ),
+  
+  
+  titlePanel("Exploration des Diamants"),
+  
+  
+  sidebarLayout(
+    sidebarPanel(
+      radioButtons(
+        inputId = "bouton_couleur",
+        label = "Colorier les points en rose ?",
+        choices = c("Oui", "Non")
+      ),
+      
+      selectInput(
+        inputId = "color",
+        label = "Choisir une couleur à filtrer :",
+        choices = c("D", "E", "F", "G", "H", "I", "J")
+      ),
+      
+      sliderInput(inputId = "price",
+                  label="Prix maximum :",
+                  min = 300,
+                  max = 20000,
+                  value = 5000),
+      
+      actionButton(inputId = "bouton_graph",
+                   label = "Visualiser le graph")
+      
+    ),
+    
+    
+    
+    mainPanel(
+      plotOutput(outputId ="diamondsplot"),
+      DTOutput(outputId ="tblo")
     )
+  )
 )
 
+
+
 server <- function(input, output) {
+  
+  observeEvent(
+    c(input$bouton_couleur, input$color, input$price, input$bouton_graph),
+    {
+      message(paste("prix :", input$price, "&", input$color))
+    }
+  )
+  
 
-    output$distPlot <- renderPlot({
-
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
-    })
+  output$diamondsplot <- renderPlot({
+    diamonds |>
+      filter(color == input$color & price <= input$price)|>
+      ggplot(aes(x = carat, y=price)) +
+      geom_point(
+        color = if (input$bouton_couleur == "Oui") "pink" else "black"
+      ) +
+      labs(
+        title = paste("Prix :", input$price, "&", "Color :", input$color)
+      )
+  })
+  
+  output$tblo<-renderDT({
+    diamonds |>
+      filter(color == input$color & price <= input$price)
+  })
 }
+
 
 shinyApp(ui = ui, server = server)
