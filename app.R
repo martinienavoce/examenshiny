@@ -56,6 +56,10 @@ server <- function(input, output) {
   
   rv <- reactiveValues()
   observeEvent(input$bouton_graph, {
+    showNotification(
+      paste("Prix :", input$price, "& Color :", input$color),
+      type = "message"
+    )
     rv$graph <- diamonds |>
       filter(color == input$color & price <= input$price)|>
       ggplot(aes(x = carat, y=price)) +
@@ -63,12 +67,14 @@ server <- function(input, output) {
         color = if (input$bouton_couleur == "Oui") "pink" else "black"
       ) +
       labs(
-        title = paste("Prix :", input$price, "& Color :", input$color)
-      )
-    
-    showNotification(
-      paste("Prix :", input$price, "& Color :", input$color),
-      type = "message"
+        title = paste("Prix :", input$price, "& Color :", input$color),
+        x = "caract",
+        y = "price"
+      )+
+      theme(
+        plot.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold")
       )
     
     rv$montableau <- diamonds |>
